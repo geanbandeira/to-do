@@ -1,0 +1,25 @@
+{
+  "tarefas": [
+    {
+      "atividade": "fazer a prova",
+      "status": "concluido",
+      "id": "hIMZ_n8lrv8"
+    },
+    {
+      "atividade": "gg",
+      "status": "concluido",
+      "id": "FXZYZ7Wy41k"
+    },
+    {
+      "atividade": "gege",
+      "status": "concluido",
+      "id": "lIGauH7t50A"
+    },
+    {
+      "atividade": "test",
+      "status": "pendente",
+      "id": "1oaQUfMfcPA"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}

@@ -1,0 +1,39 @@
+/* css principal */
+
+/*
+  seletores:
+  . - classe
+  # - id
+  *lembrar dos seletores pseudo-classes e pseudo-elementos
+
+  exemplo simples 
+    #center {
+    display: flex;
+    flex-direction: column;
+  }
+
+  mais de um
+  #center, #outro {
+    display: flex;
+    flex-direction: column;
+  }
+
+  relação (um dentro do outro)
+  .counter {
+    font-size: 16px;
+
+    .outro {
+      border-color: var(--accent-border);
+    }
+  }
+
+  relação (consigo mesmo)
+  .counter {
+    font-size: 16px;
+
+    &:hover {
+      border-color: var(--accent-border);
+    }
+  }
+*/
+
