@@ -10,14 +10,26 @@ function App() {
   const [tarefas, setTarefas] = useState([]);
   const [editando, setEditando] = useState(null);
   const [filtro, setFiltro] = useState('todas');
-  const API_URL = "https://6a08b005e7e3f433d482c367.mockapi.io/tarefas";
+  const API_URL = "https://6a08b005e7e3f433d482c367.mockapi.io/tarefas/tarefas";
 
-  // READ
+  // READ - Super Protegido
   useEffect(() => {
     fetch(API_URL)
-      .then(res => res.json())
-      .then(data => setTarefas(data))
-      .catch(() => toast.error("Erro ao carregar tarefas"));
+      .then(res => {
+        if (!res.ok) throw new Error("Rota não encontrada");
+        return res.json();
+      })
+      .then(data => {
+        if (Array.isArray(data)) {
+          setTarefas(data);
+        } else {
+          setTarefas([]); // Se vier "Not found", vira lista vazia e não quebra a tela
+        }
+      })
+      .catch(() => {
+        toast.error("Erro ao conectar com a API do MockAPI");
+        setTarefas([]); // Garante lista vazia no erro
+      });
   }, []);
 
   // CREATE
@@ -47,38 +59,56 @@ function App() {
     }
   };
 
-  // UPDATE (Status)
+  // UPDATE (Status) - Corrigido para PUT do MockAPI
   const alternarStatus = async (tarefa) => {
     try {
-      const nuevoStatus = tarefa.status === "concluido" ? "pendente" : "concluido";
-      const res = await fetch(`${API_URL}/${tarefa.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: nuevoStatus })
-      });
-      const atualizada = await res.json();
-      setTarefas(tarefas.map(t => t.id === tarefa.id ? atualizada : t));
+      const novoStatus = tarefa.status === "concluido" ? "pendente" : "concluido";
       
-      if(nuevoStatus === "concluido") {
+      // O PUT precisa receber o objeto inteiro com a modificação
+      const tarefaAtualizada = {
+        ...tarefa,
+        status: novoStatus
+      };
+
+      const res = await fetch(`${API_URL}/${tarefa.id}`, {
+        method: 'PUT', // Trocado de PATCH para PUT
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(tarefaAtualizada)
+      });
+
+      if (!res.ok) throw new Error("Erro na resposta do servidor");
+
+      const atualizada = await res.json();
+      setTarefas(tarefas.map(t => t.id == tarefa.id ? atualizada : t));
+      
+      if (novoStatus === "concluido") {
         toast.success('Tarefa concluída! 🎉');
       } else {
-        toast.secondary('Tarefa reaberta ✏️');
+        toast.success('Tarefa reaberta ✏️');
       }
     } catch {
       toast.error("Erro ao atualizar status");
     }
   };
 
-  // UPDATE (Texto)
+  // UPDATE (Texto) - Corrigido para PUT do MockAPI
   const salvarEdicao = async (id, novoTexto) => {
+    if (!novoTexto.trim()) return toast.error("O texto não pode ser vazio!");
     try {
+      // Encontra a tarefa atual para não perder o status dela
+      const tarefaAtual = tarefas.find(t => t.id == id);
+      const tarefaAtualizada = { ...tarefaAtual, atividade: novoTexto };
+
       const res = await fetch(`${API_URL}/${id}`, {
-        method: 'PATCH',
+        method: 'PUT', // Trocado de PATCH para PUT
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ atividade: novoTexto })
+        body: JSON.stringify(tarefaAtualizada)
       });
+
+      if (!res.ok) throw new Error("Erro na resposta do servidor");
+
       const atualizada = await res.json();
-      setTarefas(tarefas.map(t => t.id === id ? atualizada : t));
+      setTarefas(tarefas.map(t => t.id == id ? atualizada : t));
       setEditando(null);
       toast.success('Tarefa editada!');
     } catch {
@@ -86,8 +116,11 @@ function App() {
     }
   };
 
-  // Filtro
-  const tarefasFiltradas = tarefas.filter(t => {
+  // Força uma checagem dupla antes de tentar rodar o .filter()
+  const tarefasSeguras = Array.isArray(tarefas) ? tarefas : [];
+
+  const tarefasFiltradas = tarefasSeguras.filter(t => {
+    if (!t) return false;
     if (filtro === 'pendentes') return t.status === 'pendente';
     if (filtro === 'concluidas') return t.status === 'concluido';
     return true;
