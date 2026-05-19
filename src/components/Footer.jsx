@@ -1,17 +1,13 @@
 import imgFim from '../assets/footer-fim.png'
-import imgImporte from '../assets/importe.png'
-import imgLogo from '../assets/footer-logo.png'
+import { FileDown } from 'lucide-react' // Usando ícone do lucide no lugar da imagem
 import html2pdf from 'html2pdf.js'
 import "../App.css"
 
 const Footer = () => {
   const exportarParaPDF = () => {
-    // Captura o elemento principal da listagem de tarefas
     const elemento = document.querySelector('main');
-    
     if (!elemento) return;
 
-    // Configurações do arquivo PDF
     const opcoes = {
       margin:       10,
       filename:     'Minha-Lista-De-Tarefas.pdf',
@@ -20,7 +16,6 @@ const Footer = () => {
       jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
-    // Executa a exportação
     html2pdf().set(opcoes).from(elemento).save();
   };
 
@@ -32,14 +27,14 @@ const Footer = () => {
           onClick={exportarParaPDF} 
           className="flex items-center gap-2 bg-white p-3 rounded-xl shadow-sm border border-gray-100 hover:scale-105 transition-all cursor-pointer select-none"
         >
-          <img src={imgImporte} alt="importar" className="w-5 h-5" />
+          <FileDown className="w-5 h-5 text-blue-600" /> {/* Ícone limpo que nunca quebra */}
           <span className="text-sm font-medium text-gray-700">Exportar como PDF</span>
         </div>
       </div>
 
-      {/* Branding */}
+      {/* Branding - Texto Estilizado no lugar da imagem sumida */}
       <div className="flex flex-col items-center text-center">
-        <img src={imgLogo} alt="logo-nome" className="h-8 mb-1" />
+        <span className="text-lg font-black bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent tracking-tight">TaskFlow</span>
         <p className="text-xs text-gray-400">O passo a passo é simples.</p>
       </div>
 
@@ -51,7 +46,13 @@ const Footer = () => {
 
       {/* Imagem de Fim e Barra Fixa */}
       <div className="col-span-1 md:col-span-3 flex justify-center mt-4">
-        <img src={imgFim} alt="fim-pagina" className="max-h-12 opacity-50" />
+        {/* Caso a imagem footer-fim também dê erro, deixamos uma proteção para não quebrar o app */}
+        <img 
+          src={imgFim} 
+          alt="fim-pagina" 
+          className="max-h-12 opacity-50" 
+          onError={(e) => e.target.style.display = 'none'} 
+        />
       </div>
 
       <footer className="fixed bottom-0 left-0 right-0 bg-white/80 border-t border-gray-100 py-4 text-center text-xs text-gray-400 backdrop-blur-md z-50">
